@@ -128,7 +128,7 @@ if(uploadFile is not None):
 
     #Obtenemos la imagen para mostrarla
     
-    if st.button('Calcular'):
+    if st.button('Comparar'):
         st.subheader("Graficación")
         #image = Image.open("linearRegression.png")
         #st.image(image, caption = "Linear Regression")
@@ -187,15 +187,6 @@ if(uploadFile is not None):
         indicadorPrediccion = "+ Positiva" if predict>=0 else "- Negativa"
         st.metric(f"El valor de la predicción para {predValue} dias es de: ",predict, indicadorPrediccion)
 
-        columnFilter1 = "Casos por fecha de emisión de resultados"
-        columnFilter2 = "Casos por fecha de toma de muestra"
-        
-        
-        if columnFilter1 in df.columns and columnFilter2 in df.columns:
-            st.write("Se encontraron columnas")
-        else:
-            st.write("No se encontraron columnas")
-    
         st.subheader("Indice de Progresión Epidémiologica")
         st.write("""
         El Índice de Progresión Epidémiologica (EPI) es una medida del porcentaje de personas infectadas con respecto al número de hisopados realizados. Dado que los hisopados se realizan a personas en riesgo, el EPI indica qué tan fuerte es la propagación de la epidemia. La matemática detrás de la fórmula es la siguiente:
@@ -220,19 +211,10 @@ if(uploadFile is not None):
         dateEPI = datetime.strptime(df['fecha'].iloc[-1], '%Y-%m-%d').date()
         st.write("Calculo de EPI para la fecha: ", dateEPI)
 
-        col5, col6 = st.columns(2)
-        col5.metric("$np_1$ = ", np1)
-        col6.metric("$np_{i-1}$ = ", np2)
+        st.write("$np_1$ = ", np1, " $np_{i-1}$ = ", np2)
+        st.write("$ts_1$ = ", ts1, " $ts_{i-1}$ = ", ts2)
 
-        col7, col8 = st.columns(2)
-        col7.metric("$ts_1$ = ", ts1)
-        col8.metric("$ts_{i-1}$ = ", ts2)
-        col9, col10 = st.columns(2)
-        EPI = (np1-np2)/(ts1-ts2)
-        col9.metric("EPI = ", (np1-np2)/(ts1-ts2))
-
-
-        
+        st.write("EPI = ", (np1-np2)/(ts1-ts2))
 
 
 

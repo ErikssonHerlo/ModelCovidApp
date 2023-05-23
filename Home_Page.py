@@ -2,22 +2,51 @@
 
 import streamlit as st
 
-st.title("Data Science")
-st.write("""La ciencia de datos es el campo de la aplicación de técnicas analíticas avanzadas y principios científicos para extraer información valiosa de los datos para la toma de decisiones comerciales, la planificación estratégica y otros usos. Es cada vez más crítico para las empresas: la información que genera la ciencia de datos ayuda a las organizaciones a aumentar la eficiencia operativa, identificar nuevas oportunidades comerciales y mejorar los programas de marketing y ventas, entre otros beneficios. En última instancia, pueden generar ventajas competitivas sobre los rivales comerciales.
+st.title("Modelación y Simulación con Modelos Matemáticos")
+st.write("""La Modelación y Simulación utilizando Modelos Matemáticos es una poderosa herramienta que nos permite comprender y predecir el comportamiento de fenómenos complejos en diversos campos. Mediante la formulación de ecuaciones y relaciones matemáticas que describen el sistema en estudio, podemos obtener una representación simplificada pero precisa de su funcionamiento. Estos modelos nos permiten realizar simulaciones y experimentos virtuales, lo que nos brinda la capacidad de explorar diferentes escenarios y evaluar el impacto de cambios en las variables de interés. La Modelación y Simulación basada en Modelos Matemáticos es una disciplina fundamental para el avance científico y tecnológico, ya que nos proporciona una herramienta invaluable para tomar decisiones informadas y optimizar procesos en diversas áreas de estudio.""")
+st.subheader("El uso de la Ciencia de Datos en la Modelación de Modelos Matemáticos")
+st.write("""La Ciencia de Datos ha revolucionado numerosos campos, y su aplicación en la Modelación y Simulación no es una excepción. La Modelación y Simulación son herramientas fundamentales para comprender y predecir fenómenos complejos en diversas disciplinas, como la física, la biología, la economía y la ingeniería. Sin embargo, la incorporación de la Ciencia de Datos en este ámbito ha permitido un enfoque más preciso y sofisticado.
+
+La Ciencia de Datos se centra en la extracción de conocimientos a partir de grandes volúmenes de datos, utilizando técnicas de análisis estadístico y aprendizaje automático. Al aplicar estos métodos en la Modelación y Simulación, es posible obtener una visión más completa y detallada de los sistemas que se están estudiando.
+
+La utilización de datos reales en la modelación y simulación permite una mayor fidelidad y precisión en la representación de los fenómenos. La recopilación de datos relevantes y su preprocesamiento adecuado son pasos fundamentales para garantizar resultados confiables. Además, el análisis exploratorio de datos revela patrones y tendencias ocultas, proporcionando información valiosa para la construcción de modelos más realistas.
+
+La construcción de modelos basados en técnicas de aprendizaje automático permite capturar las complejidades de los sistemas en estudio. Estos modelos pueden aprender de los datos, identificar relaciones entre variables y realizar predicciones más precisas. La simulación y experimentación con estos modelos ofrecen la posibilidad de explorar diferentes escenarios y condiciones, proporcionando una comprensión más profunda de los sistemas y permitiendo la toma de decisiones fundamentadas.
+
+En resumen, la Ciencia de Datos ha brindado un enfoque innovador en la Modelación y Simulación, permitiendo un análisis más riguroso y preciso de fenómenos complejos. La integración de datos, análisis estadístico y aprendizaje automático ha llevado a un avance significativo en nuestra capacidad para comprender, predecir y tomar decisiones informadas en diversos campos de estudio.""")
+
+st.title("Regresión Lineal")
+st.write("""
+La regresión lineal es una técnica de modelado estadístico que se emplea para describir una variable de respuesta continua como una función de una o varias variables predictoras. Puede ayudar a comprender y predecir el comportamiento de sistemas complejos o a analizar datos experimentales, financieros y biológicos.
 """)
-st.subheader("Un recurso por descubrir para el aprendizaje automático")
-st.write("""La Data science es uno de los campos más apasionantes que existen en la actualidad. ¿Por qué es tan importante?
-
-Porque las empresas están sentadas sobre un tesoro de datos. Ya que la tecnología moderna ha permitido la creación y almacenamiento de cantidades cada vez mayores de información, los volúmenes de datos se han incrementado. Se estima que el 90% de los datos en el mundo se crearon en los últimos dos años. Por ejemplo, los usuarios de Facebook suben 10 millones de fotos por hora.
-
-Pero a menudo estos datos se almacenan en bases de datos y lagos de datos, en su mayoría intactos.
-
-La gran cantidad de datos recopilados y almacenados por estas tecnologías puede generar beneficios transformadores para las organizaciones y sociedades de todo el mundo, pero solo si sabemos interpretarlos. Ahí es donde entra en acción la ciencia de datos.
-
-La ciencia de datos revela tendencias y genera información que las empresas pueden utilizar para tomar mejores decisiones y crear productos y servicios más innovadores. Quizás lo más importante es que permite que los modelos de aprendizaje automático extraigan conocimientos de las grandes cantidades de datos que se les suministran, evitando así depender principalmente de los analistas empresariales para ver qué pueden descubrir a partir de los datos.
-
-Los datos son los cimientos de la innovación, pero su valor proviene de la información que los científicos de datos pueden extraer de ellos y luego utilizar.
+st.write("""
+Las técnicas de regresión lineal permiten crear un modelo lineal. Este modelo describe la relación entre una variable dependiente y (también conocida como la respuesta) como una función de una o varias variables independientes Xi (denominadas predictores).
 """)
+st.write("""
+La ecuación general correspondiente a un modelo de regresión lineal simple es:
+""")
+st.latex("Y=β0+βiXi+ϵi")
+
+st.title("Regresión Polinomial")
+st.write("""
+La Regresión Polinomial es un caso especial de la Regresión Lineal, extiende el modelo lineal al agregar predictores adicionales, obtenidos al elevar cada uno de los predictores originales a una potencia. Por ejemplo, una regresión cúbica utiliza tres variables, como predictores. Este enfoque proporciona una forma sencilla de proporcionar un ajuste no lineal a los datos.
+""")
+st.write("""
+El método estándar para extender la Regresión Lineal a una relación no lineal entre las variables dependientes e independientes, ha sido reemplazar el modelo lineal con una función polinomial.
+""")
+st.write("""
+Por su parte, la ecuación general correspondiente a un modelo de regresión polinomial es:
+""")
+st.latex("Y=β0+β1Xi+βnXi^n+ϵi")
+
+st.write("""
+Como se puede observar para la Regresión Polinomial se crean algunas características adicionales que no se encuentran en la Regresión Lineal.
+
+Un término polinomial, bien sea cuadrático o cúbico, convierte un modelo de regresión lineal en una curva, pero como los datos de “X” son cuadráticos o cúbicos pero el coeficiente “b” no lo es, todavía se califican como un modelo lineal.
+
+Esto hace que sea una forma agradable y directa de modelar curvas sin tener que modelar modelos complicados no lineales.
+""")
+
 st.subheader("Aplicación")
 st.write("Por ende, esta aplicación esta construida con la finalidad de visualizar las distintas aplicaciones que tiene la Ciencia de Datos. Por ello cuenta con los siguientes algoritmos y operaciones:")
 st.markdown("#### Algoritmos")
@@ -30,9 +59,9 @@ st.markdown("#### Operaciones")
 st.markdown("""
 - Graficación de puntos
 - Graficación de la tendencia
-- Definición de función de tendencia lineal
 - Definición de función de tendencia polinomial
 - Predicción de la tendencia (según la unidad de tiempo ingresada)
+- Indice de Progresión Epidémiologica (EPI)
 """)
 
 
