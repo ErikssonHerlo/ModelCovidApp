@@ -1,3 +1,5 @@
+import string
+from tokenize import Number
 import streamlit as st
 import os
 import matplotlib.pyplot as plt
@@ -6,23 +8,23 @@ import pandas as pd
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.metrics import mean_squared_error, r2_score
+from datetime import datetime, timedelta, date
 
+def getOperator(valor: float) -> str:
+    operador = "+ " if valor>=0 else "" 
+    return operador
 
-st.title("Regresión Lineal")
+st.title("Casos Fallecidos")
 st.write("""
-La regresión lineal es una técnica de modelado estadístico que se emplea para describir una variable de respuesta continua como una función de una o varias variables predictoras. Puede ayudar a comprender y predecir el comportamiento de sistemas complejos o a analizar datos experimentales, financieros y biológicos.
+Se le llama así a una persona fallecida cumpliendo con la definición de caso confirmado; los casos fallecidos se visualizan por fecha de defunción. 
+Es importante indicar que los casos suelen reportarse días después de su defunción por el tiempo de investigación individualizado y el proceso de notificación 
 """)
-st.write("""
-Las técnicas de regresión lineal permiten crear un modelo lineal. Este modelo describe la relación entre una variable dependiente y (también conocida como la respuesta) como una función de una o varias variables independientes Xi (denominadas predictores).
-""")
-st.write("""
-La ecuación general correspondiente a un modelo de regresión lineal simple es:
-""")
-st.latex("Y=β0+βiXi+ϵi")
-
+st.write("Donde: ")
+st.write("- **Fallecidos por Fecha:** representa el número total de Fallecimientos que se reportaron ese día y fueron informados a las autoridades.")
+st.divider()
 st.subheader("Carga del Archivo")
 st.write("""
-Para realizar un análisis de regresión líneal, es necesario cargar un archivo de datos, con un formato específico. Estos pueden ser archivos con extensiones: csv, xls,xlsx o json.
+Para realizar un análisis de regresión polinomial, es necesario cargar un archivo de datos, con un formato específico. Estos pueden ser archivos con extensiones: csv, xls,xlsx o json.
 """)
 
 uploadFile = st.file_uploader("Elija un archivo", type=['csv', 'xls', 'xlsx', 'json'])
@@ -44,6 +46,10 @@ if(uploadFile is not None):
     # Imprimimos el contenido de la tabla
     st.markdown("#### Contenido del Archivo")
     st.dataframe(df)
+    #Get Initial Date from Data
+    initialDateString = df['fecha'][0]
+    initialDate = datetime.strptime(initialDateString, '%Y-%m-%d').date()
+
 
     st.subheader("Parametrización")
     st.write("""
@@ -52,8 +58,16 @@ if(uploadFile is not None):
     var_X = st.selectbox("Por favor elija una opción", df.keys(), key="variableX")
     st.markdown("#### Variable Dependiente (Y)")
     var_Y = st.selectbox("Por favor elija una opción", df.keys(), key="variableY")
+    column1, column2 = st.columns(2)
+    with column1:
+        st.markdown("#### Grado de la Función")
+        grado = st.slider("Elija el Grado de la Función", 2, 5, 2, 1)
     st.markdown("#### Valor de la Predicción")
-    predValue = st.number_input("Ingrese el valor de la Predicción",None,None,0,1)
+    datePrediction = st.date_input( "Ingrese la fecha que desea predecir", date.today(), min_value=initialDate)
+    
+    predValue = (datePrediction - initialDate).days
+
+    st.write("Se hará una predicción para un total de ", predValue, " dias")
     st.markdown("#### Colores de la Gráfica")
     col1, col2 = st.columns(2)
     with col1:
@@ -65,21 +79,36 @@ if(uploadFile is not None):
     # x = np.asarray(df[var_x])
     y = df[var_Y]
 
+    
+
+    # Regrsion Polinomial
+    pf = PolynomialFeatures(degree = grado)
+    x_trans = pf.fit_transform(x)
+
     # Regresion Lineal
     regr = LinearRegression()
-    regr.fit(x, y)
-    y_pred = regr.predict(x)
+    regr.fit(x_trans, y)
+
+    # Errores
+    y_pred = regr.predict(x_trans)
+    rmse = np.sqrt(mean_squared_error(y, y_pred))
     r2 = r2_score(y, y_pred)
     errorCuadratico = mean_squared_error(y, y_pred)
 
-    predict = regr.predict([[predValue]])
+    #Prediccion
+    x_new_min = predValue
+    x_new_max = predValue
+    x_new = np.linspace(x_new_min, x_new_max, 1)
+    x_new = x_new[:, np.newaxis]
+    x_trans = pf.fit_transform(x_new)
+    predict = regr.predict(x_trans)
 
     #Graficacion
     fig = plt.figure()
     plt.style.use("seaborn")
     plt.scatter(x, y, color= colorPoints)
     plt.plot(x, y_pred, color= colorLine)
-    plt.title("Regresión Líneal")
+    plt.title(f"Regresión Polinomial de Grado {grado}")
     plt.ylabel(var_Y)
     plt.xlabel(var_X)
     #plt.savefig("linearRegression.png")
@@ -95,10 +124,11 @@ if(uploadFile is not None):
         st.markdown("#### Datos de la Gráfica")
 
         col1, col2= st.columns(2)
-        
-        pendiente =  float(regr.coef_)
-        indicadorPendiente = "+ Positiva" if pendiente>=0 else "- Negativa" 
-        col1.metric("Pendiente", pendiente, indicadorPendiente)
+        col1.write("Coeficientes de la Función")
+        col1.write(regr.coef_)
+        # pendiente =  float(regr.coef_)
+        #indicadorPendiente = "+ Positiva" if pendiente>=0 else "- Negativa" 
+        #col1.metric("Coeficientes de la Función", regr.coef_)
         
         intercepto = float(regr.intercept_)
         indicadorIntercepto = "+ Positivo" if intercepto>=0 else "- Negativo"
@@ -106,21 +136,45 @@ if(uploadFile is not None):
         
         col3, col4 = st.columns(2)
         col3.metric("Coeficiente de Determinación",r2)
-        col4.metric("Error Cuadrático",errorCuadratico)
+        col4.metric("Error Cuadrático Medio", rmse)
         
         st.subheader("Función de la Tendencia")
         
-        operador = "+ " if intercepto>=0 else "" 
-        st.latex(f"f(x)={pendiente}X {operador}{intercepto}")
+        if(grado == 2):
+            b1 = float(regr.coef_[1])
+            b2 = float(regr.coef_[2])
+            
+            st.latex(f"f(x)={b2}X^2 {getOperator(b1)} {b1}X {getOperator(intercepto)}{intercepto}")
+        elif(grado == 3):
+            b1 = float(regr.coef_[1])
+            b2 = float(regr.coef_[2])
+            b3 = float(regr.coef_[3])
+            
+            st.latex(f"f(x)= {b3}X^3 {getOperator(b2)}{b2}X^2 {getOperator(b1)} {b1}X {getOperator(intercepto)}{intercepto}")
+
+        elif(grado == 4):
+            b1 = float(regr.coef_[1])
+            b2 = float(regr.coef_[2])
+            b3 = float(regr.coef_[3])
+            b4 = float(regr.coef_[4])
+            
+            st.latex(f"f(x)= {b4}X^4 {getOperator(b3)}{b3}X^3 {getOperator(b2)}{b2}X^2")
+            st.latex(f"{getOperator(b1)} {b1}X {getOperator(intercepto)}{intercepto}")
+
+        elif(grado == 5):
+            b1 = float(regr.coef_[1])
+            b2 = float(regr.coef_[2])
+            b3 = float(regr.coef_[3])
+            b4 = float(regr.coef_[4])
+            b5 = float(regr.coef_[5])
+            
+            st.latex(f"f(x)= {b5}X^5 {getOperator(b4)}{b4}X^4 {getOperator(b3)}{b3}X^3")
+            st.latex(f"{getOperator(b2)}{b2}X^2 {getOperator(b1)} {b1}X {getOperator(intercepto)}{intercepto}")
+        #st.latex(f"f(x)={pendiente}X {operador}{intercepto}")
         st.subheader("Predicción")
         indicadorPrediccion = "+ Positiva" if predict>=0 else "- Negativa"
-        st.metric(f"El valor de la predicción para {predValue} es de: ",predict, indicadorPrediccion)
-
-
-
-
+        st.metric(f"El valor de la predicción de Casos para {predValue} dias es de: ",predict, indicadorPrediccion)
         
-    
 
 
 else:
@@ -134,9 +188,12 @@ st.sidebar.markdown("- [Contenido del Archivo](#contenido-del-archivo)")
 st.sidebar.markdown("### [Parametrización](#parametrizaci-n)")
 st.sidebar.markdown("- [Variable Indepentiente (X)](#variable-independiente-x)")
 st.sidebar.markdown("- [Variable Depentiente (Y)](#variable-dependiente-y)")
+st.sidebar.markdown("- [Grado de la Función](#grado-de-la-funci-n)")
 st.sidebar.markdown("- [Valor de la Predicción](#valor-de-la-predicci-n)")
 st.sidebar.markdown("- [Colores de la Gráfica](#colores-de-la-gr-fica)")
 st.sidebar.markdown("### [Graficación](#graficaci-n)")
 st.sidebar.markdown("- [Datos de la Gráfica](#datos-de-la-gr-fica)")
 st.sidebar.markdown("### [Función de la Tendencia](#funci-n-de-la-tendencia)")
 st.sidebar.markdown("### [Predicción](#predicci-n)")
+
+

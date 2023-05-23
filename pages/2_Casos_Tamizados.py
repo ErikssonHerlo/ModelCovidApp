@@ -14,26 +14,15 @@ def getOperator(valor: float) -> str:
     operador = "+ " if valor>=0 else "" 
     return operador
 
-st.title("Regresión Polinomial")
+st.title("Casos Tamizados")
 st.write("""
-La Regresión Polinomial es un caso especial de la Regresión Lineal, extiende el modelo lineal al agregar predictores adicionales, obtenidos al elevar cada uno de los predictores originales a una potencia. Por ejemplo, una regresión cúbica utiliza tres variables, como predictores. Este enfoque proporciona una forma sencilla de proporcionar un ajuste no lineal a los datos.
+Se le llama así a un  caso con cualquier resultado de prueba antígeno o PCR para la detección de SARS-CoV2 registrado en el sistema de información del MSPAS.
 """)
-st.write("""
-El método estándar para extender la Regresión Lineal a una relación no lineal entre las variables dependientes e independientes, ha sido reemplazar el modelo lineal con una función polinomial.
-""")
-st.write("""
-Por su parte, la ecuación general correspondiente a un modelo de regresión polinomial es:
-""")
-st.latex("Y=β0+β1Xi+βnXi^n+ϵi")
-
-st.write("""
-Como se puede observar para la Regresión Polinomial se crean algunas características adicionales que no se encuentran en la Regresión Lineal.
-
-Un término polinomial, bien sea cuadrático o cúbico, convierte un modelo de regresión lineal en una curva, pero como los datos de “X” son cuadráticos o cúbicos pero el coeficiente “b” no lo es, todavía se califican como un modelo lineal.
-
-Esto hace que sea una forma agradable y directa de modelar curvas sin tener que modelar modelos complicados no lineales.
-""")
-
+st.write("Donde: ")
+st.write("- **Casos por Fecha de Inicio de Sintomas:** representa el número total de Casos que presentaron sintomas ese día y fueron informados a las autoridades para darles un seguimiento.")
+st.write("- **Casos por Fecha de Toma de Muestra:** representa el número total de hisopados realizados ese día.")
+st.write("- **Casos por Fecha de Emisión de Resultados:**  representa el número total de casos positivos confirmados de coronavirus ese día.")
+st.divider()
 st.subheader("Carga del Archivo")
 st.write("""
 Para realizar un análisis de regresión polinomial, es necesario cargar un archivo de datos, con un formato específico. Estos pueden ser archivos con extensiones: csv, xls,xlsx o json.
@@ -128,7 +117,7 @@ if(uploadFile is not None):
 
     #Obtenemos la imagen para mostrarla
     
-    if st.button('Comparar'):
+    if st.button('Calcular'):
         st.subheader("Graficación")
         #image = Image.open("linearRegression.png")
         #st.image(image, caption = "Linear Regression")
@@ -185,18 +174,18 @@ if(uploadFile is not None):
         #st.latex(f"f(x)={pendiente}X {operador}{intercepto}")
         st.subheader("Predicción")
         indicadorPrediccion = "+ Positiva" if predict>=0 else "- Negativa"
-        st.metric(f"El valor de la predicción para {predValue} dias es de: ",predict, indicadorPrediccion)
-
+        st.metric(f"El valor de la predicción de Casos para {predValue} dias es de: ",predict, indicadorPrediccion)
+    
         st.subheader("Indice de Progresión Epidémiologica")
         st.write("""
         El Índice de Progresión Epidémiologica (EPI) es una medida del porcentaje de personas infectadas con respecto al número de hisopados realizados. Dado que los hisopados se realizan a personas en riesgo, el EPI indica qué tan fuerte es la propagación de la epidemia. La matemática detrás de la fórmula es la siguiente:
         """)
         st.latex("EPI = "r'\frac{np_i - np_{i-1}}{ts_i - ts_{i-1}}')
         st.write("Donde: ")
-        st.write("$np_i$: representa el número total de casos positivos de coronavirus el día i, tomando este dato del ultimo registro cargado en el csv en la Columna \"Casos por Fecha de Emisión de Resultados\".")
-        st.write("$np_{i-1}$: representa el número total de casos positivos de coronavirus el día i-1, tomando este dato del penultimo registro cargado en el csv en la Columna \"Casos por Fecha de Emisión de Resultados\".")
-        st.write("$ts_i$: representa el número total de hisopados realizados el día i, tomando este dato del ultimo registro cargado en el csv en la Columna \"Casos por Fecha de toma de Muestra\".")
-        st.write("$ts_{i-1}$: representa el número total de hisopados realizados el día i-1, tomando este dato del penultimo registro cargado en el csv en la Columna \"Casos por Fecha de toma de Muestra\".") 
+        st.write("- $np_i$: representa el número total de casos positivos de coronavirus el día i, tomando este dato del ultimo registro cargado en el csv en la Columna \"Casos por Fecha de Emisión de Resultados\".")
+        st.write("- $np_{i-1}$: representa el número total de casos positivos de coronavirus el día i-1, tomando este dato del penultimo registro cargado en el csv en la Columna \"Casos por Fecha de Emisión de Resultados\".")
+        st.write("- $ts_i$: representa el número total de hisopados realizados el día i, tomando este dato del ultimo registro cargado en el csv en la Columna \"Casos por Fecha de toma de Muestra\".")
+        st.write("- $ts_{i-1}$: representa el número total de hisopados realizados el día i-1, tomando este dato del penultimo registro cargado en el csv en la Columna \"Casos por Fecha de toma de Muestra\".") 
 
         st.write(""" 
         El EPI se utiliza para evaluar la intensidad de la propagación de la epidemia en un área o población específica. Un EPI alto indica una alta proporción de personas infectadas en relación con los hisopados realizados, lo que sugiere una mayor propagación de la enfermedad. Por otro lado, un EPI bajo indica una baja proporción de personas infectadas en relación con los hisopados, lo que puede indicar un menor nivel de propagación.
@@ -211,10 +200,19 @@ if(uploadFile is not None):
         dateEPI = datetime.strptime(df['fecha'].iloc[-1], '%Y-%m-%d').date()
         st.write("Calculo de EPI para la fecha: ", dateEPI)
 
-        st.write("$np_1$ = ", np1, " $np_{i-1}$ = ", np2)
-        st.write("$ts_1$ = ", ts1, " $ts_{i-1}$ = ", ts2)
+        col5, col6 = st.columns(2)
+        col5.metric("$np_1$ = ", np1)
+        col6.metric("$np_{i-1}$ = ", np2)
 
-        st.write("EPI = ", (np1-np2)/(ts1-ts2))
+        col7, col8 = st.columns(2)
+        col7.metric("$ts_1$ = ", ts1)
+        col8.metric("$ts_{i-1}$ = ", ts2)
+        col9, col10 = st.columns(2)
+        EPI = (np1-np2)/(ts1-ts2)
+        col9.metric("EPI = ", (np1-np2)/(ts1-ts2))
+
+
+        
 
 
 

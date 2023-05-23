@@ -14,26 +14,14 @@ def getOperator(valor: float) -> str:
     operador = "+ " if valor>=0 else "" 
     return operador
 
-st.title("Regresión Polinomial")
+st.title("Casos Fallecidos")
 st.write("""
-La Regresión Polinomial es un caso especial de la Regresión Lineal, extiende el modelo lineal al agregar predictores adicionales, obtenidos al elevar cada uno de los predictores originales a una potencia. Por ejemplo, una regresión cúbica utiliza tres variables, como predictores. Este enfoque proporciona una forma sencilla de proporcionar un ajuste no lineal a los datos.
+Se le llama así a una persona fallecida cumpliendo con la definición de caso confirmado; los casos fallecidos se visualizan por fecha de defunción. 
+Es importante indicar que los casos suelen reportarse días después de su defunción por el tiempo de investigación individualizado y el proceso de notificación 
 """)
-st.write("""
-El método estándar para extender la Regresión Lineal a una relación no lineal entre las variables dependientes e independientes, ha sido reemplazar el modelo lineal con una función polinomial.
-""")
-st.write("""
-Por su parte, la ecuación general correspondiente a un modelo de regresión polinomial es:
-""")
-st.latex("Y=β0+β1Xi+βnXi^n+ϵi")
-
-st.write("""
-Como se puede observar para la Regresión Polinomial se crean algunas características adicionales que no se encuentran en la Regresión Lineal.
-
-Un término polinomial, bien sea cuadrático o cúbico, convierte un modelo de regresión lineal en una curva, pero como los datos de “X” son cuadráticos o cúbicos pero el coeficiente “b” no lo es, todavía se califican como un modelo lineal.
-
-Esto hace que sea una forma agradable y directa de modelar curvas sin tener que modelar modelos complicados no lineales.
-""")
-
+st.write("Donde: ")
+st.write("- **Fallecidos por Fecha:** representa el número total de Fallecimientos que se reportaron ese día y fueron informados a las autoridades.")
+st.divider()
 st.subheader("Carga del Archivo")
 st.write("""
 Para realizar un análisis de regresión polinomial, es necesario cargar un archivo de datos, con un formato específico. Estos pueden ser archivos con extensiones: csv, xls,xlsx o json.
@@ -70,6 +58,24 @@ if(uploadFile is not None):
     var_X = st.selectbox("Por favor elija una opción", df.keys(), key="variableX")
     st.markdown("#### Variable Dependiente (Y)")
     var_Y = st.selectbox("Por favor elija una opción", df.keys(), key="variableY")
+    st.markdown("#### Tipo de Vacuna")
+    type_vacunation = st.selectbox("Por favor elija una opción", ["ASTRAZÉNECA", "MODERNA", "PFIZER", "SPUTNIK"], key="vacuna")
+    
+    st.markdown("#### Dosis")
+    dosis = st.selectbox("Por favor elija una opción", ["Todas","Primera", "Segunda", "Tercera", "Refuerzo"], key="dosis")
+    
+    if(dosis == "Todas"):
+        numberDosis = 0
+    elif(dosis == "Primera"):
+        numberDosis = 1
+    elif(dosis == "Segunda"):
+        numberDosis = 2
+    elif(dosis == "Tercera"):
+        numberDosis = 3
+    elif(dosis == "Refuerzo"):
+        numberDosis = 4
+
+    
     column1, column2 = st.columns(2)
     with column1:
         st.markdown("#### Grado de la Función")
@@ -86,6 +92,20 @@ if(uploadFile is not None):
         colorPoints = st.color_picker('Elije un Color para los Puntos de la gráfica','#EF280F')
     with col2:
         colorLine = st.color_picker('Elije un Color para la Tendencia de la gráfica', '#024A86')
+
+    df_filteredByVacunation = df['Tipo Vacuna'] == type_vacunation
+    
+    
+    if(numberDosis == 0):
+         df_filteredByDosis = df_filteredByVacunation
+         df = df[df_filteredByVacunation]
+    else:
+         df_filteredByDosis = df['Dosis'] == numberDosis  
+         df = df[df_filteredByDosis & df_filteredByVacunation]
+    #df_filtered = df_filteredByDosis
+    
+    
+    st.dataframe(df)
     #Transformar Data a Array
     x = np.asarray(df[var_X]).reshape(-1, 1)
     # x = np.asarray(df[var_x])
@@ -185,60 +205,8 @@ if(uploadFile is not None):
         #st.latex(f"f(x)={pendiente}X {operador}{intercepto}")
         st.subheader("Predicción")
         indicadorPrediccion = "+ Positiva" if predict>=0 else "- Negativa"
-        st.metric(f"El valor de la predicción para {predValue} dias es de: ",predict, indicadorPrediccion)
-
-        columnFilter1 = "Casos por fecha de emisión de resultados"
-        columnFilter2 = "Casos por fecha de toma de muestra"
+        st.metric(f"El valor de la predicción de Vacunación para {predValue} dias es de: ",predict, indicadorPrediccion)
         
-        
-        if columnFilter1 in df.columns and columnFilter2 in df.columns:
-            st.write("Se encontraron columnas")
-        else:
-            st.write("No se encontraron columnas")
-    
-        st.subheader("Indice de Progresión Epidémiologica")
-        st.write("""
-        El Índice de Progresión Epidémiologica (EPI) es una medida del porcentaje de personas infectadas con respecto al número de hisopados realizados. Dado que los hisopados se realizan a personas en riesgo, el EPI indica qué tan fuerte es la propagación de la epidemia. La matemática detrás de la fórmula es la siguiente:
-        """)
-        st.latex("EPI = "r'\frac{np_i - np_{i-1}}{ts_i - ts_{i-1}}')
-        st.write("Donde: ")
-        st.write("$np_i$: representa el número total de casos positivos de coronavirus el día i, tomando este dato del ultimo registro cargado en el csv en la Columna \"Casos por Fecha de Emisión de Resultados\".")
-        st.write("$np_{i-1}$: representa el número total de casos positivos de coronavirus el día i-1, tomando este dato del penultimo registro cargado en el csv en la Columna \"Casos por Fecha de Emisión de Resultados\".")
-        st.write("$ts_i$: representa el número total de hisopados realizados el día i, tomando este dato del ultimo registro cargado en el csv en la Columna \"Casos por Fecha de toma de Muestra\".")
-        st.write("$ts_{i-1}$: representa el número total de hisopados realizados el día i-1, tomando este dato del penultimo registro cargado en el csv en la Columna \"Casos por Fecha de toma de Muestra\".") 
-
-        st.write(""" 
-        El EPI se utiliza para evaluar la intensidad de la propagación de la epidemia en un área o población específica. Un EPI alto indica una alta proporción de personas infectadas en relación con los hisopados realizados, lo que sugiere una mayor propagación de la enfermedad. Por otro lado, un EPI bajo indica una baja proporción de personas infectadas en relación con los hisopados, lo que puede indicar un menor nivel de propagación.
-        Entre más se acerque a 0 el EPI, más lenta es la propagación de la enfermedad, indicando que la epidemia está bajo control.
-        """)
-
-        np1 = int(df['Casos por fecha de emisión de resultados'].tail(1))
-        np2 = int(df['Casos por fecha de emisión de resultados'].tail(2).head(1))
-        ts1 = int(df['Casos por fecha de toma de muestra'].tail(1))
-        ts2 = int(df['Casos por fecha de toma de muestra'].tail(2).head(1))
-
-        dateEPI = datetime.strptime(df['fecha'].iloc[-1], '%Y-%m-%d').date()
-        st.write("Calculo de EPI para la fecha: ", dateEPI)
-
-        col5, col6 = st.columns(2)
-        col5.metric("$np_1$ = ", np1)
-        col6.metric("$np_{i-1}$ = ", np2)
-
-        col7, col8 = st.columns(2)
-        col7.metric("$ts_1$ = ", ts1)
-        col8.metric("$ts_{i-1}$ = ", ts2)
-        col9, col10 = st.columns(2)
-        EPI = (np1-np2)/(ts1-ts2)
-        col9.metric("EPI = ", (np1-np2)/(ts1-ts2))
-
-
-        
-
-
-
-
-        
-    
 
 
 else:
@@ -259,6 +227,5 @@ st.sidebar.markdown("### [Graficación](#graficaci-n)")
 st.sidebar.markdown("- [Datos de la Gráfica](#datos-de-la-gr-fica)")
 st.sidebar.markdown("### [Función de la Tendencia](#funci-n-de-la-tendencia)")
 st.sidebar.markdown("### [Predicción](#predicci-n)")
-st.sidebar.markdown("### [Indice de Progresión Epidémiologica](#indice-de-progresi-n-epid-miologica)")
 
 

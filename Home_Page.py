@@ -61,6 +61,7 @@ st.markdown("""
 - Graficación de la tendencia
 - Definición de función de tendencia polinomial
 - Predicción de la tendencia (según la unidad de tiempo ingresada)
+- Predicción de la tendencia de Vacunación(según el tipo de vacuna, numero de dosis y unidad de tiempo ingresada)
 - Indice de Progresión Epidémiologica (EPI)
 """)
 
