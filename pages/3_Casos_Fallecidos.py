@@ -49,6 +49,9 @@ if(uploadFile is not None):
     #Get Initial Date from Data
     initialDateString = df['fecha'][0]
     initialDate = datetime.strptime(initialDateString, '%Y-%m-%d').date()
+    
+    finalDateString = df['fecha'].iloc[-1]
+    finalDate = datetime.strptime(finalDateString, '%Y-%m-%d').date()
 
 
     st.subheader("Parametrización")
@@ -65,18 +68,35 @@ if(uploadFile is not None):
     st.markdown("#### Valor de la Predicción")
     datePrediction = st.date_input( "Ingrese la fecha que desea predecir", date.today(), min_value=initialDate)
     
-    predValue = (datePrediction - initialDate).days
-
-    st.write("Se hará una predicción para un total de ", predValue, " dias")
+    st.markdown("#### Inicio de la Muestra")
+    initialSampleDate = st.date_input( "Ingrese la Fecha de Inicio de la Muestra", initialDate, min_value=initialDate, max_value=finalDate)
+      
+    totalDays = (finalDate - initialDate).days
+    daysToPredict = (datePrediction - initialDate).days
+    predValue = (datePrediction - initialSampleDate).days
+    valueSample = (finalDate - initialSampleDate).days
+    valueMinSample = totalDays - predValue
+    st.write("- Dias desde el Inicio de la Pandemia hasta la fecha a predecir: ", daysToPredict)
+    st.write("- Dias desde el Inicio de la Muestra hasta la fecha a predecir: ", predValue)
     st.markdown("#### Colores de la Gráfica")
     col1, col2 = st.columns(2)
     with col1:
         colorPoints = st.color_picker('Elije un Color para los Puntos de la gráfica','#EF280F')
     with col2:
         colorLine = st.color_picker('Elije un Color para la Tendencia de la gráfica', '#024A86')
+
+
+    #Filtrado de Muestra
+    df_filteredBySample = df.tail(valueSample)
+    st.dataframe(df_filteredBySample)
+    df_complete = df
+    df = df_filteredBySample
+    
     #Transformar Data a Array
+    x_complete = np.asarray(df_complete[var_X]).reshape(-1, 1)
+    y_complete = df_complete[var_Y]
+
     x = np.asarray(df[var_X]).reshape(-1, 1)
-    # x = np.asarray(df[var_x])
     y = df[var_Y]
 
     
@@ -84,36 +104,50 @@ if(uploadFile is not None):
     # Regrsion Polinomial
     pf = PolynomialFeatures(degree = grado)
     x_trans = pf.fit_transform(x)
+    x_trans_complete = pf.fit_transform(x_complete)
 
     # Regresion Lineal
     regr = LinearRegression()
     regr.fit(x_trans, y)
+    
+    regr2 = LinearRegression()
+    regr2.fit(x_trans_complete, y_complete)
+    
 
     # Errores
     y_pred = regr.predict(x_trans)
+    y_pred_complete = regr2.predict(x_trans_complete)
+    
     rmse = np.sqrt(mean_squared_error(y, y_pred))
     r2 = r2_score(y, y_pred)
     errorCuadratico = mean_squared_error(y, y_pred)
 
     #Prediccion
-    x_new_min = predValue
-    x_new_max = predValue
+    x_new_min = daysToPredict
+    x_new_max = daysToPredict
     x_new = np.linspace(x_new_min, x_new_max, 1)
     x_new = x_new[:, np.newaxis]
     x_trans = pf.fit_transform(x_new)
     predict = regr.predict(x_trans)
 
-    #Graficacion
+
+    #Graficacion Completa
     fig = plt.figure()
+    plt.style.use("seaborn")
+    plt.scatter(x_complete, y_complete, color= colorPoints)
+    plt.plot(x_complete, y_pred_complete, color= colorLine)
+    plt.title(f"Regresión Polinomial de Grado {grado}")
+    plt.ylabel(var_Y)
+    plt.xlabel(var_X)
+
+    #Graficacion por Intervalo
+    fig_Complete = plt.figure()
     plt.style.use("seaborn")
     plt.scatter(x, y, color= colorPoints)
     plt.plot(x, y_pred, color= colorLine)
     plt.title(f"Regresión Polinomial de Grado {grado}")
     plt.ylabel(var_Y)
     plt.xlabel(var_X)
-    #plt.savefig("linearRegression.png")
-    #plt.close()
-
     #Obtenemos la imagen para mostrarla
     
     if st.button('Calcular'):
@@ -121,6 +155,7 @@ if(uploadFile is not None):
         #image = Image.open("linearRegression.png")
         #st.image(image, caption = "Linear Regression")
         st.pyplot(fig)
+        st.pyplot(fig_Complete)
         st.markdown("#### Datos de la Gráfica")
 
         col1, col2= st.columns(2)
@@ -173,7 +208,14 @@ if(uploadFile is not None):
         #st.latex(f"f(x)={pendiente}X {operador}{intercepto}")
         st.subheader("Predicción")
         indicadorPrediccion = "+ Positiva" if predict>=0 else "- Negativa"
-        st.metric(f"El valor de la predicción de Casos para {predValue} dias es de: ",predict, indicadorPrediccion)
+        if(predict<=0):
+            valuePredict = 0
+        else:
+            valuePredict = predict
+        st.metric(f"El valor de la predicción de Muertes para {daysToPredict} dias desde el inicio de la pandemia es de: ",valuePredict, indicadorPrediccion)
+
+
+
         
 
 

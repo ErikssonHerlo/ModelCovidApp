@@ -14,13 +14,15 @@ def getOperator(valor: float) -> str:
     operador = "+ " if valor>=0 else "" 
     return operador
 
-st.title("Casos Fallecidos")
+st.title("Vacunación")
 st.write("""
-Se le llama así a una persona fallecida cumpliendo con la definición de caso confirmado; los casos fallecidos se visualizan por fecha de defunción. 
-Es importante indicar que los casos suelen reportarse días después de su defunción por el tiempo de investigación individualizado y el proceso de notificación 
-""")
+
+Se le llama así a al proceso de prevención de enfermedades potencialmente mortales, para reducir la aparición de síntomas graves y evitar hospitalizaciones. Las vacunas son herramientas que ayudan a nuestro cuerpo (el sistema inmune) a reconocer a los virus, bacterias o cualquier otro patógeno, de manera que el cuerpo pueda crear defensas contra cualquiera de éstos, y así, prevenir enfermedades graves, como lo es el COVID-19.""")
 st.write("Donde: ")
-st.write("- **Fallecidos por Fecha:** representa el número total de Fallecimientos que se reportaron ese día y fueron informados a las autoridades.")
+st.write("- **Dosis:** representa el número de dosis que se aplico durante ese día.")
+st.write("- **Tipo de Vacuna:** representa el tipo de vacuna que se aplico durante ese día.")
+st.write("- **Cantidad Dosis administradas:** representa el número total de dosis que se aplicaron durante ese día.")
+
 st.divider()
 st.subheader("Carga del Archivo")
 st.write("""
@@ -205,7 +207,11 @@ if(uploadFile is not None):
         #st.latex(f"f(x)={pendiente}X {operador}{intercepto}")
         st.subheader("Predicción")
         indicadorPrediccion = "+ Positiva" if predict>=0 else "- Negativa"
-        st.metric(f"El valor de la predicción de Vacunación para {predValue} dias es de: ",predict, indicadorPrediccion)
+        if(predict<=0):
+            valuePredict = 0
+        else:
+            valuePredict = predict
+        st.metric(f"El valor de la predicción de Vacunación para {predValue} dias es de: ",valuePredict, indicadorPrediccion)
         
 
 
