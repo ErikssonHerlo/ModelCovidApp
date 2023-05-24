@@ -44,4 +44,4 @@ El Proyecto No. 2 consiste en la implementación de un modelo de simulación y m
 
 ## Despliegue de la Aplicación
 La aplicación se encuentra desplegada en el siguiente enlace:
-[Model Covid App](https://erikssonherlo-datascience-pagina-inicio-fx20bt.streamlitapp.com/)
+[Model Covid App](https://erikssonherlo-modelcovidapp-home-page-909hwl.streamlit.app/)
